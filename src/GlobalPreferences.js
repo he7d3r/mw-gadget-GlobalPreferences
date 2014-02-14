@@ -37,7 +37,7 @@ function updatePrefs() {
 
 mw.loader.using( 'user.options', function(){
 	prefsVersion = parseInt( mw.user.options.get( 'userjs-already-set-common-preferences' ), 10 ) || 0;
-	if( prefsVersion < curVersion && mw.config.get( 'wgContentLanguage' ) !== 'pt' ){
+	if( prefsVersion < curVersion && $.inArray( mw.config.get( 'wgContentLanguage' ), [ 'pt', 'pt-br' ] ) === -1 ){
 		mw.loader.using( [ 'mediawiki.api', 'mediawiki.notify' ], function(){
 			$( updatePrefs );
 		} );

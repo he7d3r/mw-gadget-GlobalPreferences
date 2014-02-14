@@ -7,8 +7,10 @@
 /*global jQuery, mediaWiki */
 ( function ( mw, $ ) {
 'use strict';
+var curVersion = 2,
+	prefsVersion;
 
-function setPrefs() {
+function updatePrefs() {
 	var api = new mw.Api();
 	api.get( {
 		action: 'tokens',
@@ -18,9 +20,11 @@ function setPrefs() {
 		api.post( {
 			action: 'options',
 			token: data.tokens.optionstoken,
-			change: 'language=en|fancysig=1|userjs-already-set-common-preferences=1',
+			change: 'language=en|fancysig=1|userjs-already-set-common-preferences=' + curVersion,
 			optionname: 'nickname',
-			optionvalue: '[[b:pt:User:' + mw.config.get('wgUserName') + '|' + mw.config.get('wgUserName') + ']]'
+			optionvalue: '[[' +
+				( /wikibooks$/.test( mw.config.get( 'wgDBname' ) ) ? '' : 'b' ) +
+				':pt:User:' + mw.config.get('wgUserName') + '|' + mw.config.get('wgUserName') + ']]'
 		} )
 		.done( function () {
 			mw.notify( 'Your "global" preferences were copied to this wiki.', { autoHide: false } );
@@ -29,11 +33,10 @@ function setPrefs() {
 }
 
 mw.loader.using( 'user.options', function(){
-	if( !mw.user.options.get( 'userjs-already-set-common-preferences' ) &&
-		mw.config.get( 'wgContentLanguage' ) !== 'pt'
-	){
+	prefsVersion = parseInt( mw.user.options.get( 'userjs-already-set-common-preferences' ), 10 ) || 0;
+	if( prefsVersion < curVersion && mw.config.get( 'wgContentLanguage' ) !== 'pt' ){
 		mw.loader.using( [ 'mediawiki.api', 'mediawiki.notify' ], function(){
-			$( setPrefs );
+			$( updatePrefs );
 		} );
 	}
 } );

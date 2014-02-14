@@ -23,7 +23,7 @@ function setPrefs() {
 			optionvalue: '[[b:pt:User:' + mw.config.get('wgUserName') + '|' + mw.config.get('wgUserName') + ']]'
 		} )
 		.done( function () {
-			mw.notify( 'Your "global" preferences were copied to this wiki.', { autoHide: true } );
+			mw.notify( 'Your "global" preferences were copied to this wiki.', { autoHide: false } );
 		} );
 	} );
 }

@@ -9,7 +9,7 @@
 ( function ( mw, $ ) {
 'use strict';
 // FIXME: Allow users to customize this
-var curVersion = 2,
+var curVersion = 3,
 	prefsVersion;
 
 function updatePrefs() {
@@ -24,9 +24,7 @@ function updatePrefs() {
 			token: data.tokens.optionstoken,
 			change: 'language=en|fancysig=1|userjs-already-set-common-preferences=' + curVersion,
 			optionname: 'nickname',
-			optionvalue: '[[' +
-				( /wikibooks$/.test( mw.config.get( 'wgDBname' ) ) ? '' : 'b' ) +
-				':pt:User:' + mw.config.get('wgUserName') + '|' + mw.config.get('wgUserName') + ']]'
+			optionvalue: '[[User:Helder.wiki|Helder]]'
 		} )
 		.done( function () {
 			mw.notify(

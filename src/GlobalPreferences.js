@@ -32,7 +32,7 @@ function setPreferences( prefs ) {
 			if( value.toString().indexOf( '|' ) !== -1 ) {
 				promises.push( api.post( {
 					action: 'options',
-					optionname: 'userjs-' + pref,
+					optionname: pref,
 					optionvalue: value,
 					token: data.tokens.optionstoken
 				} ) );

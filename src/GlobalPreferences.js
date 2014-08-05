@@ -58,9 +58,11 @@ function setPreferences( prefs ) {
 		$.when.apply( $, promises )
 		.done( function () {
 			mw.notify(
-				mw.msg(
-					'global-preferences-changed',
-					JSON.stringify( prefs, null, 2 )
+				$( '<p></p>').append(
+					mw.msg(
+						'global-preferences-changed',
+						'<pre>' + JSON.stringify( prefs, null, 2 ) + '</pre>'
+					)
 				),
 				{ autoHide: false }
 			);
@@ -180,6 +182,8 @@ function getGlobalPreferences(){
 	} );
 }
 
-mw.loader.using( [ 'mediawiki.api', 'user.options' ], getGlobalPreferences );
+if( mw.config.get( 'wgAction' ) === 'view' ){
+	mw.loader.using( [ 'mediawiki.api', 'user.options' ], getGlobalPreferences );
+}
 
 }( mediaWiki, jQuery ) );

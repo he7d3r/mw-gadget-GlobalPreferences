@@ -14,8 +14,13 @@ mw.messages.set( {
 	'global-preferences-set': 'Set global preferences',
 	'global-preferences-set-desc': 'Set the your global preferences by providing a ' +
 		'string in JSON format',
-	'global-preferences-set-prompt': 'Provide JSON string representing the preferences ' +
-		'you want to set as global preferences.'
+	'global-preferences-set-prompt': 'Provide a JSON string representing the preferences ' +
+		'you want to set as global preferences.',
+	'global-preferences-exceptions-set': 'Set preference exceptions',
+	'global-preferences-exceptions-set-desc': 'Set the exceptions to your global ' +
+		'preferences by providing a string in JSON format',
+	'global-preferences-exceptions-set-prompt': 'Provide a JSON string with database names ' +
+		'as keys and "*" or arrays of preference names (the exceptions) as its values.'
 } );
 
 function setPreferences( prefs ) {
@@ -29,16 +34,18 @@ function setPreferences( prefs ) {
 			grouped = [];
 		// Based on [[pl:MediaWiki:Gadget-gConfig.js]]
 		$.each( prefs, function( pref, value ){
-			var str = typeof value === 'object' ? JSON.stringify( value ) : value.toString();
-			if( str.toString().indexOf( '|' ) !== -1 ) {
+			var formatted = typeof value === 'object' ?
+				JSON.stringify( value ) :
+				value;
+			if( value.toString().indexOf( '|' ) !== -1 ) {
 				promises.push( api.post( {
 					action: 'options',
 					optionname: pref,
-					optionvalue: str,
+					optionvalue: formatted,
 					token: data.tokens.optionstoken
 				} ) );
 			} else {
-				grouped.push( pref + '=' + value );
+				grouped.push( pref + '=' + formatted );
 			}
 		} );
 		if ( grouped.length ) {
@@ -60,18 +67,36 @@ function setPreferences( prefs ) {
 		} );
 	} );
 }
-function setGlobalPreferences( e ){
-	var prefs = prompt( mw.msg( 'global-preferences-set-prompt' ) );
-	e.preventDefault();
-	if ( prefs ){
+
+function setJsonPrefFromPrompt( msgName, prefName ){
+	var prefs = prompt( mw.msg( msgName ) ),
+		obj = {};
+	if ( prefs ) {
 		try {
 			JSON.parse( prefs );
 		} catch ( err ) {
 			alert( err );
 			return;
 		}
+		obj[ prefName ] = prefs;
+		setPreferences( obj );
 	}
-	setPreferences( { 'userjs-global-preferences': prefs } );
+}
+
+function setGlobalPreferencesExceptions( e ){
+	e.preventDefault();
+	setJsonPrefFromPrompt(
+		'global-preferences-exceptions-set-prompt',
+		'userjs-global-preferences-exceptions'
+	);
+}
+
+function setGlobalPreferences( e ){
+	e.preventDefault();
+	setJsonPrefFromPrompt(
+		'global-preferences-set-prompt',
+		'userjs-global-preferences'
+	);
 }
 
 function getGlobalPreferences(){
@@ -94,6 +119,13 @@ function getGlobalPreferences(){
 				'ca-global-preferences',
 				mw.msg( 'global-preferences-set-desc' )
 			) ).click( setGlobalPreferences );
+			$( mw.util.addPortletLink(
+				'p-cactions',
+				'#',
+				mw.msg( 'global-preferences-exceptions-set' ),
+				'ca-global-preferences',
+				mw.msg( 'global-preferences-exceptions-set-desc' )
+			) ).click( setGlobalPreferencesExceptions );
 		} );
 	} else {
 		params.origin = 'https:' + localServer;
@@ -111,9 +143,19 @@ function getGlobalPreferences(){
 		if( !prefs ) {
 			return;
 		}
-		prefs = JSON.parse( prefs );
+		try {
+			prefs = JSON.parse( prefs );
+		} catch ( err ) {
+			alert( err );
+			return;
+		}
 		if( exceptions ) {
-			exceptions = JSON.parse( exceptions )[ mw.config.get( 'wgDBname' ) ];
+			try {
+				exceptions = JSON.parse( exceptions )[ mw.config.get( 'wgDBname' ) ];
+			} catch ( err ) {
+				alert( err );
+				return;
+			}
 			if( exceptions === '*' ) {
 				return;
 			}

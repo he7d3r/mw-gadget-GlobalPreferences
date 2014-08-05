@@ -29,7 +29,8 @@ function setPreferences( prefs ) {
 			grouped = [];
 		// Based on [[pl:MediaWiki:Gadget-gConfig.js]]
 		$.each( prefs, function( pref, value ){
-			if( value.toString().indexOf( '|' ) !== -1 ) {
+			var str = typeof value === 'object' ? JSON.stringify( value ) : value.toString();
+			if( str.toString().indexOf( '|' ) !== -1 ) {
 				promises.push( api.post( {
 					action: 'options',
 					optionname: pref,

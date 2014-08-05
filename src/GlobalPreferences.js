@@ -34,7 +34,7 @@ function setPreferences( prefs ) {
 				promises.push( api.post( {
 					action: 'options',
 					optionname: pref,
-					optionvalue: value,
+					optionvalue: str,
 					token: data.tokens.optionstoken
 				} ) );
 			} else {

@@ -61,7 +61,9 @@ function setPreferences( prefs ) {
 				$( '<p></p>').append(
 					mw.msg(
 						'global-preferences-changed',
-						'<pre>' + JSON.stringify( prefs, null, 2 ) + '</pre>'
+						'<pre style="white-space: pre-wrap;">' +
+						JSON.stringify( prefs, null, 2 ) +
+						'</pre>'
 					)
 				),
 				{ autoHide: false }

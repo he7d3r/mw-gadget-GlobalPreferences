@@ -4,11 +4,10 @@
  * @author: [[User:Helder.wiki]]
  * @tracking: [[Special:GlobalUsage/User:Helder.wiki/Tools/GlobalPreferences.js]] ([[File:User:Helder.wiki/Tools/GlobalPreferences.js]])
  */
-/*jshint browser: true, camelcase: true, curly: true, eqeqeq: true, immed: true, latedef: true, newcap: true, noarg: true, noempty: true, nonew: true, quotmark: true, undef: true, unused: true, strict: true, trailing: true, maxlen: 120, evil: true, onevar: true */
+/*jshint browser: true, camelcase: true, curly: true, eqeqeq: false, immed: true, latedef: true, newcap: true, noarg: true, noempty: true, nonew: true, quotmark: true, undef: true, unused: true, strict: true, trailing: true, maxlen: 120, evil: true, onevar: true */
 /*global jQuery, mediaWiki */
 ( function ( mw, $ ) {
 'use strict';
-
 mw.messages.set( {
 	'global-preferences-changed': 'Some of your preferences were changed on this wiki: $1.',
 	'global-preferences-set': 'Set global preferences',
@@ -170,7 +169,20 @@ function getGlobalPreferences(){
 			}
 		}
 		for( i in prefs ){
-			if ( prefs[ i ] === mw.user.options.get( i ) ){
+			// The use of strict comparison (===) seems to be problematic:
+			// setting the 'searchNs0="1"' on metawiki (or ptwikibooks)
+			// actually sets 'searchNs0=true' so, if the global
+			// preference uses 'searchNs0="1"', it
+			// would try to change the preference every time!
+			// On the other hand, setting the 'searchNs9=true' on metawiki (or ptwikibooks)
+			// actually sets 'searchNs9="true"', so if the global preference
+			// uses 'searchNs9=true', it would also try to change the preference every time!
+			// Moreover, the type of the saved values depend on the wiki:
+			// * Setting searchNs12 to true on metawiki results in the bolean true
+			// * Setting searchNs12 to true on ptwikibooks results in the string "true"
+			// * Setting searchNs0 to true on both results in the bolean true
+			// Será um bug na $wgUser->getOptions()?
+			if ( prefs[ i ] == mw.user.options.get( i ) ){
 				delete prefs[ i ];
 			}
 		}

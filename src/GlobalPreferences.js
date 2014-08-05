@@ -1,47 +1,142 @@
 /**
- * Set my common preferences in the first time I visit some wiki
+ * Set global preferences when I visit some wiki
+ * 
  * @author: [[User:Helder.wiki]]
- * @tracking: [[Special:GlobalUsage/User:Helder.wiki/Tools/changeMyPrefs.js]] ([[File:User:Helder.wiki/Tools/changeMyPrefs.js]])
- * TODO: Add ability to define a list of preferences whose values should be copied from a "home wiki". Store such a list as a preference in the home wiki.
+ * @tracking: [[Special:GlobalUsage/User:Helder.wiki/Tools/GlobalPreferences.js]] ([[File:User:Helder.wiki/Tools/GlobalPreferences.js]])
  */
 /*jshint browser: true, camelcase: true, curly: true, eqeqeq: true, immed: true, latedef: true, newcap: true, noarg: true, noempty: true, nonew: true, quotmark: true, undef: true, unused: true, strict: true, trailing: true, maxlen: 120, evil: true, onevar: true */
 /*global jQuery, mediaWiki */
 ( function ( mw, $ ) {
 'use strict';
-// FIXME: Allow users to customize this
-var curVersion = 3,
-	prefsVersion;
 
-function updatePrefs() {
+mw.messages.set( {
+	'global-preferences-changed': 'Some of your preferences were changed on this wiki: $1.',
+	'global-preferences-set': 'Set global preferences',
+	'global-preferences-set-desc': 'Set the your global preferences by providing a ' +
+		'string in JSON format',
+	'global-preferences-set-prompt': 'Provide JSON string representing the preferences ' +
+		'you want to set as global preferences.'
+} );
+
+function setPreferences( prefs ) {
 	var api = new mw.Api();
 	api.get( {
 		action: 'tokens',
 		type: 'options'
 	} )
 	.done( function ( data ) {
-		api.post( {
-			action: 'options',
-			token: data.tokens.optionstoken,
-			change: 'language=en|fancysig=1|userjs-already-set-common-preferences=' + curVersion,
-			optionname: 'nickname',
-			optionvalue: '[[User:Helder.wiki|Helder]]'
-		} )
+		var promises = [],
+			grouped = [];
+		// Based on [[pl:MediaWiki:Gadget-gConfig.js]]
+		$.each( prefs, function( pref, value ){
+			if( value.toString().indexOf( '|' ) !== -1 ) {
+				promises.push( api.post( {
+					action: 'options',
+					optionname: 'userjs-' + pref,
+					optionvalue: value,
+					token: data.tokens.optionstoken
+				} ) );
+			} else {
+				grouped.push( pref + '=' + value );
+			}
+		} );
+		if ( grouped.length ) {
+			promises.push( api.post( {
+				action: 'options',
+				change: grouped.join( '|' ),
+				token: data.tokens.optionstoken
+			} ) );
+		}
+		$.when.apply( $, promises )
 		.done( function () {
 			mw.notify(
-				'The version ' + curVersion + ' of your "global" preferences were copied to this wiki.',
+				mw.msg(
+					'global-preferences-changed',
+					JSON.stringify( prefs, null, 2 )
+				),
 				{ autoHide: false }
 			);
 		} );
 	} );
 }
-
-mw.loader.using( 'user.options', function(){
-	prefsVersion = parseInt( mw.user.options.get( 'userjs-already-set-common-preferences' ), 10 ) || 0;
-	if( prefsVersion < curVersion && $.inArray( mw.config.get( 'wgContentLanguage' ), [ 'pt', 'pt-br' ] ) === -1 ){
-		mw.loader.using( [ 'mediawiki.api', 'mediawiki.notify' ], function(){
-			$( updatePrefs );
-		} );
+function setGlobalPreferences( e ){
+	var prefs = prompt( mw.msg( 'global-preferences-set-prompt' ) );
+	e.preventDefault();
+	if ( prefs ){
+		try {
+			JSON.parse( prefs );
+		} catch ( err ) {
+			alert( err );
+			return;
+		}
 	}
-} );
+	setPreferences( { 'userjs-global-preferences': prefs } );
+}
+
+function getGlobalPreferences(){
+	var localServer = mw.config.get( 'wgServer' ),
+		// Change this using mw.user.options.set( 'global-preferences-server', '//some.wiki.org' )
+		globalServer = mw.user.options.get( 'global-preferences-server', '//meta.wikimedia.org' ),
+		ajaxParams = {},
+		params = {
+			action: 'query',
+			meta: 'userinfo',
+			uiprop: 'options'
+		};
+
+	if( globalServer === localServer ){
+		$( function(){
+			$( mw.util.addPortletLink(
+				'p-cactions',
+				'#',
+				mw.msg( 'global-preferences-set' ),
+				'ca-global-preferences',
+				mw.msg( 'global-preferences-set-desc' )
+			) ).click( setGlobalPreferences );
+		} );
+	} else {
+		params.origin = 'https:' + localServer;
+		ajaxParams.url = globalServer + '/w/api.php';
+		ajaxParams.xhrFields = {
+			'withCredentials': true
+		};
+	}
+	// Get the user preferences in the global server
+	( new mw.Api( { ajax: ajaxParams } ) ).get( params )
+	.done( function( data ){
+		var i, opts = data.query.userinfo.options,
+			prefs = opts[ 'userjs-global-preferences' ],
+			exceptions = opts[ 'userjs-global-preferences-exceptions' ];
+		if( !prefs ) {
+			return;
+		}
+		prefs = JSON.parse( prefs );
+		if( exceptions ) {
+			exceptions = JSON.parse( exceptions )[ mw.config.get( 'wgDBname' ) ];
+			if( exceptions === '*' ) {
+				return;
+			}
+			if( $.isArray( exceptions ) ) {
+				for( i = 0; i < exceptions.length; i++ ){
+					delete prefs[ exceptions[i] ];
+				}
+			}
+		}
+		for( i in prefs ){
+			if ( prefs[ i ] === mw.user.options.get( i ) ){
+				delete prefs[ i ];
+			}
+		}
+		if( $.isEmptyObject( prefs ) ) {
+			return;
+		}
+		$.when( $.ready, mw.loader.using( 'mediawiki.notify' ) )
+		.then( function(){
+			setPreferences( prefs );
+		} );
+	} );
+}
+
+mw.loader.using( [ 'mediawiki.api', 'user.options' ], getGlobalPreferences );
 
 }( mediaWiki, jQuery ) );

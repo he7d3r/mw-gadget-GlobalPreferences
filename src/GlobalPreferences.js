@@ -182,7 +182,7 @@ function getGlobalPreferences(){
 			// * Setting searchNs12 to true on metawiki results in the bolean true
 			// * Setting searchNs12 to true on ptwikibooks results in the string "true"
 			// * Setting searchNs0 to true on both results in the bolean true
-			// Será um bug na $wgUser->getOptions()?
+			// Será um bug na $wgUser->getOptions()? [[bugzilla:52542]]?
 			if ( prefs[ i ] == mw.user.options.get( i ) ){
 				delete prefs[ i ];
 			}

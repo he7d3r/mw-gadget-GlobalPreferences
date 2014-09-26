@@ -4,8 +4,6 @@
  * @author: Helder (https://github.com/he7d3r)
  * @license: CC BY-SA 3.0 <https://creativecommons.org/licenses/by-sa/3.0/>
  */
-/*jshint browser: true, camelcase: true, curly: true, eqeqeq: false, immed: true, latedef: true, newcap: true, noarg: true, noempty: true, nonew: true, quotmark: true, undef: true, unused: true, strict: true, trailing: true, maxlen: 120, evil: true, onevar: true */
-/*global jQuery, mediaWiki */
 ( function ( mw, $ ) {
 'use strict';
 mw.messages.set( {
@@ -182,9 +180,11 @@ function getGlobalPreferences(){
 			// * Setting searchNs12 to true on ptwikibooks results in the string "true"
 			// * Setting searchNs0 to true on both results in the bolean true
 			// Será um bug na $wgUser->getOptions()? [[bugzilla:52542]]?
+			/*jshint eqeqeq: false */
 			if ( prefs[ i ] == mw.user.options.get( i ) ){
 				delete prefs[ i ];
 			}
+			/*jshint eqeqeq: true */
 		}
 		if( $.isEmptyObject( prefs ) ) {
 			return;

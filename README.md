@@ -19,6 +19,6 @@ Examples
 {"ptwiki":["language"],"ptwikibooks":["language"]}
 ```
 
-For now, in order to save JSON objects like these in the Meta-wiki preference, the script provides two links in the actions menu (the one which contains the "Move" link), which shows a simple prompt when activated. The user needs to copy/write a JSON string to the prompt, and press OK. In the future (issue #1), a better interface should be provided to help the users (and to avoid syntax errors).
+For now, in order to save JSON objects like these in the Meta-wiki preference, the script provides two links in the actions menu (the one which contains the "Move" link), which shows a simple prompt when activated. The user needs to copy/write a JSON string to the prompt, and press OK. In the future ([issue #1](/../../issues/1)), a better interface should be provided to help the users (and to avoid syntax errors).
 
 If everything goes well, the choosen preferences should be copied to other wikis when you visit them (it will show a notification in the top right corner of the page).

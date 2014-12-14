@@ -179,7 +179,7 @@
 				// * Setting searchNs12 to true on metawiki results in the bolean true
 				// * Setting searchNs12 to true on ptwikibooks results in the string "true"
 				// * Setting searchNs0 to true on both results in the bolean true
-				// Será um bug na $wgUser->getOptions()? [[bugzilla:52542]]?
+				// Será um bug na $wgUser->getOptions()? [[phab:T54542]]?
 				/*jshint eqeqeq: false */
 				if ( prefs[ i ] == mw.user.options.get( i ) ) {
 					delete prefs[ i ];

@@ -21,51 +21,19 @@
 	} );
 
 	function setPreferences( prefs ) {
-		var api = new mw.Api();
-		api.get( {
-			action: 'tokens',
-			type: 'options'
-		} )
-		.done( function ( data ) {
-			var promises = [],
-				grouped = [];
-			// Based on [[pl:MediaWiki:Gadget-gConfig.js]]
-			$.each( prefs, function ( pref, value ) {
-				var formatted = typeof value === 'object' ?
-					JSON.stringify( value ) :
-					value;
-				if ( value.toString().indexOf( '|' ) !== -1 ) {
-					promises.push( api.post( {
-						action: 'options',
-						optionname: pref,
-						optionvalue: formatted,
-						token: data.tokens.optionstoken
-					} ) );
-				} else {
-					grouped.push( pref + '=' + formatted );
-				}
-			} );
-			if ( grouped.length ) {
-				promises.push( api.post( {
-					action: 'options',
-					change: grouped.join( '|' ),
-					token: data.tokens.optionstoken
-				} ) );
-			}
-			$.when.apply( $, promises )
-			.done( function () {
-				mw.notify(
-					$( '<p></p>').append(
-						mw.msg(
-							'global-preferences-changed',
-							'<pre style="white-space: pre-wrap;">' +
-							JSON.stringify( prefs, null, 2 ) +
-							'</pre>'
-						)
-					),
-					{ autoHide: false }
-				);
-			} );
+		new mw.Api().saveOptions( prefs )
+		.done( function () {
+			mw.notify(
+				$( '<p></p>').append(
+					mw.msg(
+						'global-preferences-changed',
+						'<pre style="white-space: pre-wrap;">' +
+						JSON.stringify( prefs, null, 2 ) +
+						'</pre>'
+					)
+				),
+				{ autoHide: false }
+			);
 		} );
 	}
 
@@ -80,7 +48,13 @@
 				return;
 			}
 			obj[ prefName ] = prefs;
-			setPreferences( obj );
+			mw.loader.using( [
+				'mediawiki.notify',
+				'mediawiki.api.options',
+			] )
+			.done( function () {
+				setPreferences( obj );
+			} );
 		}
 	}
 
@@ -189,8 +163,11 @@
 			if ( $.isEmptyObject( prefs ) ) {
 				return;
 			}
-			$.when( $.ready, mw.loader.using( 'mediawiki.notify' ) )
-			.then( function () {
+			mw.loader.using( [
+				'mediawiki.notify',
+				'mediawiki.api.options',
+			] )
+			.done( function () {
 				setPreferences( prefs );
 			} );
 		} );

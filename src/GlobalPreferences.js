@@ -17,7 +17,8 @@
 		'global-preferences-exceptions-set-desc': 'Set the exceptions to your global ' +
 			'preferences by providing a string in JSON format',
 		'global-preferences-exceptions-set-prompt': 'Provide a JSON string with database names ' +
-			'as keys and "*" or arrays of preference names (the exceptions) as its values.'
+			'as keys and "*" or arrays of preference names (the exceptions) as its values.',
+		'global-preferences-api-error': 'There was an error: $1; $2'
 	} );
 
 	function setPreferences( prefs ) {
@@ -31,6 +32,14 @@
 						JSON.stringify( prefs, null, 2 ) +
 						'</pre>'
 					)
+				),
+				{ autoHide: false }
+			);
+		} )
+		.fail( function ( code, result ) {
+			mw.notify(
+				$( '<p></p>').append(
+					mw.msg( 'global-preferences-api-error', code, result.error.info )
 				),
 				{ autoHide: false }
 			);

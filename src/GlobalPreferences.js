@@ -1,5 +1,5 @@
 /**
- * Set global preferences when I visit some wiki
+ * Set global preferences when the user visits a wiki
  *
  * @author: Helder (https://github.com/he7d3r)
  * @license: CC BY-SA 3.0 <https://creativecommons.org/licenses/by-sa/3.0/>

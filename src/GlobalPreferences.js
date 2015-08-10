@@ -181,8 +181,8 @@
 			} );
 		} );
 	}
-	// Disable in debug mode, due to [[phab:T104844#1451006]]
-	if ( mw.config.get( 'wgAction' ) === 'view' && !mw.config.get( 'debug' ) ) {
+
+	if ( mw.config.get( 'wgAction' ) === 'view' ) {
 		mw.loader.using( [ 'mediawiki.api', 'user.options' ], getGlobalPreferences );
 	}
 

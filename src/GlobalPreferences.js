@@ -143,7 +143,7 @@
 				if ( exceptions === '*' ) {
 					return;
 				}
-				if ( $.isArray( exceptions ) ) {
+				if ( Array.isArray( exceptions ) ) {
 					for ( i = 0; i < exceptions.length; i++ ) {
 						delete prefs[ exceptions[i] ];
 					}

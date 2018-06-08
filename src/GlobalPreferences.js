@@ -59,7 +59,7 @@
 			obj[ prefName ] = prefs;
 			mw.loader.using( [
 				'mediawiki.notify',
-				'mediawiki.api.options',
+				'mediawiki.api',
 			] )
 			.done( function () {
 				setPreferences( obj );
@@ -174,7 +174,7 @@
 			}
 			mw.loader.using( [
 				'mediawiki.notify',
-				'mediawiki.api.options',
+				'mediawiki.api',
 			] )
 			.done( function () {
 				setPreferences( prefs );

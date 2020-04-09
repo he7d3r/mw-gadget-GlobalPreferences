@@ -58,7 +58,6 @@
 			}
 			obj[ prefName ] = prefs;
 			mw.loader.using( [
-				'mediawiki.notify',
 				'mediawiki.api',
 			] )
 			.done( function () {
@@ -173,7 +172,6 @@
 				return;
 			}
 			mw.loader.using( [
-				'mediawiki.notify',
 				'mediawiki.api',
 			] )
 			.done( function () {
